@@ -10,6 +10,18 @@ pipeline {
                 }
             }
         }
+        stage('Remove Old Container') {
+            steps {
+                script {
+                    // Попробуй удалить старый контейнер, если он существует
+                    sh '''
+                    if [ "$(docker ps -q -f name=my-php-app)" ]; then
+                        docker rm -f my-php-app
+                    fi
+                    '''
+                }
+            }
+        }
         stage('Run') {
             steps {
                 script {
