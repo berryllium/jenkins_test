@@ -1,19 +1,26 @@
 pipeline {
     agent any
+    
     stages {
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
                 script {
-                    // Сборка нового Docker образа
-                    docker.build('my-php-app')
+                    // Собираем Docker-образ с тегом my-php-app
+                    sh 'docker build -t my-php-app .'
                 }
             }
         }
-        stage('Run New Container') {
+        stage('Run') {
             steps {
                 script {
-                    // Запуск нового контейнера
-                    docker.image('my-php-app').run('-d -p 8888:80 --name my-php-app')
+                    // Проверяем, запущен ли контейнер, если да, останавливаем его
+                    sh '''
+                    if [ $(docker ps -q -f name=my-php-app) ]; then
+                        docker stop my-php-app && docker rm my-php-app
+                    fi
+                    '''
+                    // Запускаем контейнер на порту 8080
+                    sh 'docker run -d -p 8080:80 --name my-php-app my-php-app'
                 }
             }
         }
